@@ -59,6 +59,10 @@ button:hover {
 	cursor: pointer;
 }
 
+button:focus {
+	outline: none;
+}
+
 
 /****** PIECES ******/
 
@@ -67,19 +71,26 @@ button:hover {
 	background-repeat: no-repeat;
 }
 
-.p1 {
+.piece.p1 {
 	width: 123px;
 	height: 123px;
 }
 
-.p2, .p3, .p4, .p5, .p6{
+.piece.p2, .piece.p3, .piece.p4, .piece.p5, .piece.p6{
 	width: 92px;
 	height: 92px;
 }
 
-.p7 {
+.piece.p7 {
 	width: 61px;
 	height: 61px;
+}
+
+.brick {
+	position: absolute;
+	background-repeat: no-repeat;
+	width: 30px;
+	height: 30px;
 }
 
 
