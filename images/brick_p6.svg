@@ -4,6 +4,15 @@
     <title>brick_p6</title>
     <desc>Created with Sketch.</desc>
     <g id="brick_p6" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <rect id="Rectangle-Copy-5" stroke="#C9BA73" fill="#F7E48D" x="0.5" y="0.5" width="29" height="29"></rect>
+        <g id="brick_p6_symbol" fill="#2E61FF">
+            <rect id="Rectangle-Copy-5" x="0" y="0" width="30" height="30"></rect>
+        </g>
+        <g id="piece_effect">
+            <rect id="Rectangle-Copy-26" fill-opacity="0.13" fill="#000000" x="0" y="2" width="2" height="26"></rect>
+            <rect id="Rectangle-Copy-27" fill-opacity="0.13" fill="#000000" x="28" y="2" width="2" height="26"></rect>
+            <rect id="Rectangle-Copy-13" fill-opacity="0.55" fill="#FFFFFF" x="4" y="4" width="6" height="6"></rect>
+            <rect id="Rectangle-Copy-28" fill-opacity="0.13" fill="#000000" x="0" y="28" width="30" height="2"></rect>
+            <rect id="Rectangle-Copy-29" fill-opacity="0.13" fill="#000000" x="0" y="0" width="30" height="2"></rect>
+        </g>
     </g>
 </svg>

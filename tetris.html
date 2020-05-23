@@ -4,18 +4,45 @@
 	<title>Tetris</title>
 	<link rel="stylesheet" type="text/css" href="tetris.css">
 	<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:ital,wght@0,200;1,400&family=Sniglet:wght@400;800&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@400;700&display=swap" rel="stylesheet">
 	<script type="text/javascript" src="tetris.js"></script>
 </head>
 <body id="body">
 
 <div id="container">
-	<h1>Tetris</h1>
-	<div id="game">
-		<div id="gameboard">
-			<!-- <div id="piece1" class="piece p1"></div> -->
+	<section>
+		<h1>Tetris</h1>
+		<div id=playMask>
 		</div>
-	</div>
-	<button id="play">PLAY</button>
+		<div id="game">
+			<div id="gameboard">
+				<!-- <div id="piece1" class="piece p1"></div> -->
+			</div>
+		</div>
+	</section>
+	<section>
+		<div id="score">
+			<div class="row level">
+				<div>
+					<h2>Level</h2>
+					<p id="level">–</p>
+				</div>
+			</div>
+			<div class="row spacer"></div>
+			<div class="row details">
+				<div>
+					<h3>Score</h3>
+					<p id="points">–</p>
+				</div>
+				<div>
+					<h3>Lines Cleared</h3>
+					<p id="lines">–</p>
+				</div>
+			</div>
+		</div>
+		<button id="play">PLAY</button>	
+		<!-- <button id="pause">PAUSE</button>	 -->
+	</section>
 </div>
 
 </body>

@@ -1,5 +1,5 @@
 body {
-	background: #f0f3f4;
+	background: hsl(200, 50%, 70%);
 	font-family: 'Bangers', sans-serif;
 	display: flex;
 	justify-content: center;
@@ -14,11 +14,88 @@ h1 {
 	text-shadow: 2px 2px 8px rgba(50, 70, 90, 0.3);
 }
 
+h2, h3 {
+	margin: 0;
+	padding: 8px 0;
+	color: #fff;
+	text-shadow: 2px 2px 8px rgba(50, 70, 90, 0.3);
+}
+
+h2 {
+	display: inline-block;
+	font-size: 3rem;
+	margin: 0 auto;
+}
+
+h3 {
+	font-size: 2rem;
+}
+
 #container {
-	width: 60%;
+	width: 100%;
 	text-align: center;
 	display: flex;
+	justify-content: center;
+}
+
+#container section {
+	margin-left: 80px;
+
+}
+
+#score {
+	width: 400px;
+	display: flex;
 	flex-direction: column;
+	justify-content: center;
+	align-content: stretch;
+	margin-top: 175px;
+	background: rgba(255, 255, 255, 0.1);
+	padding: 24px;
+	border-radius: 10px;
+}
+
+#score div.row {
+	display: flex;
+	margin-bottom: 24px;
+}
+
+#score div.row.level {
+	width: auto;
+	margin: 0 auto 16px auto;
+}
+
+#score div.row.spacer {
+	width: 100%;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+#score div.row.details div {
+	width: 50%;
+}
+
+#score div.row.details div:first-child {
+	margin-right: 36px;
+}
+
+#score p#level {
+	display: inline;
+	font-family: 'Nanum Gothic Coding', monospace;
+	font-size: 3rem;
+	font-style: normal;
+	font-weight: 400;
+	margin-left: 16px;
+}
+
+#score p {
+	padding: 0;
+	margin-top: 8px;
+	margin-bottom: 0;
+	font-family: 'Nanum Gothic Coding', monospace;
+	font-size: 1.5rem;
+	font-weight: 400;
+	color: rgb(255, 255, 255);
+
 }
 
 #game {
@@ -40,18 +117,34 @@ h1 {
 	background: url('images/board.svg');
 }
 
+button#pause {
+	display: none;
+	margin-top: 24px;
+}
+
+#playMask {
+	z-index: 200;
+	position: absolute;
+	opacity: 0.6;
+	width: 331px;
+	height: 641px;
+	background: rgb(0, 84, 126);
+	border-radius: 4px;
+}
+
 button {
+	margin-top: 24px;
 	width: 200px;
 	height: 36px;
-	background-color: rgba(0, 0, 0, 0.2);
-	border: none;
-	font-family: 'Nunito', sans-serif;
+	background-color: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.8);
+	font-family: 'Nanum Gothic Coding', monospace;
 	font-weight: 200;
 	font-size: 1.25em;
 	letter-spacing: 0.1em;
 	border-radius: 18px;
-	color: #fff;
-	align-self: center;
+	color: rgb(255, 255, 255);
+	transition: background-color 0.2s;
 }
 
 button:hover {
@@ -61,6 +154,10 @@ button:hover {
 
 button:focus {
 	outline: none;
+}
+
+button:active {
+	background-color: rgba(0, 0, 0, 0.5);
 }
 
 

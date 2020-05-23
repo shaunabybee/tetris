@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="123px" height="123px" viewBox="0 0 123 123" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 58 (84663) - https://sketch.com -->
+    <title>p1_270</title>
+    <desc>Created with Sketch.</desc>
+    <g id="p1_270" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="brick_p1_symbol" transform="translate(93.000000, 62.000000)" fill="#E27CFF">
+            <rect id="Rectangle-Copy-5" x="0" y="0" width="30" height="30"></rect>
+        </g>
+        <g id="brick_p1_symbol" transform="translate(62.000000, 62.000000)" fill="#E27CFF">
+            <rect id="Rectangle-Copy-5" x="0" y="0" width="30" height="30"></rect>
+        </g>
+        <g id="brick_p1_symbol" transform="translate(31.000000, 62.000000)" fill="#E27CFF">
+            <rect id="Rectangle-Copy-5" x="0" y="0" width="30" height="30"></rect>
+        </g>
+        <g id="brick_p1_symbol" transform="translate(0.000000, 62.000000)" fill="#E27CFF">
+            <rect id="Rectangle-Copy-5" x="0" y="0" width="30" height="30"></rect>
+        </g>
+        <g id="piece_effect" transform="translate(93.000000, 62.000000)">
+            <rect id="Rectangle-Copy-26" fill-opacity="0.13" fill="#000000" x="0" y="2" width="2" height="26"></rect>
+            <rect id="Rectangle-Copy-27" fill-opacity="0.13" fill="#000000" x="28" y="2" width="2" height="26"></rect>
+            <rect id="Rectangle-Copy-13" fill-opacity="0.55" fill="#FFFFFF" x="4" y="4" width="6" height="6"></rect>
+            <rect id="Rectangle-Copy-28" fill-opacity="0.13" fill="#000000" x="0" y="28" width="30" height="2"></rect>
+            <rect id="Rectangle-Copy-29" fill-opacity="0.13" fill="#000000" x="0" y="0" width="30" height="2"></rect>
+        </g>
+        <g id="piece_effect" transform="translate(62.000000, 62.000000)">
+            <rect id="Rectangle-Copy-26" fill-opacity="0.13" fill="#000000" x="0" y="2" width="2" height="26"></rect>
+            <rect id="Rectangle-Copy-27" fill-opacity="0.13" fill="#000000" x="28" y="2" width="2" height="26"></rect>
+            <rect id="Rectangle-Copy-13" fill-opacity="0.55" fill="#FFFFFF" x="4" y="4" width="6" height="6"></rect>
+            <rect id="Rectangle-Copy-28" fill-opacity="0.13" fill="#000000" x="0" y="28" width="30" height="2"></rect>
+            <rect id="Rectangle-Copy-29" fill-opacity="0.13" fill="#000000" x="0" y="0" width="30" height="2"></rect>
+        </g>
+        <g id="piece_effect" transform="translate(31.000000, 62.000000)">
+            <rect id="Rectangle-Copy-26" fill-opacity="0.13" fill="#000000" x="0" y="2" width="2" height="26"></rect>
+            <rect id="Rectangle-Copy-27" fill-opacity="0.13" fill="#000000" x="28" y="2" width="2" height="26"></rect>
+            <rect id="Rectangle-Copy-13" fill-opacity="0.55" fill="#FFFFFF" x="4" y="4" width="6" height="6"></rect>
+            <rect id="Rectangle-Copy-28" fill-opacity="0.13" fill="#000000" x="0" y="28" width="30" height="2"></rect>
+            <rect id="Rectangle-Copy-29" fill-opacity="0.13" fill="#000000" x="0" y="0" width="30" height="2"></rect>
+        </g>
+        <g id="piece_effect" transform="translate(0.000000, 62.000000)">
+            <rect id="Rectangle-Copy-26" fill-opacity="0.13" fill="#000000" x="0" y="2" width="2" height="26"></rect>
+            <rect id="Rectangle-Copy-27" fill-opacity="0.13" fill="#000000" x="28" y="2" width="2" height="26"></rect>
+            <rect id="Rectangle-Copy-13" fill-opacity="0.55" fill="#FFFFFF" x="4" y="4" width="6" height="6"></rect>
+            <rect id="Rectangle-Copy-28" fill-opacity="0.13" fill="#000000" x="0" y="28" width="30" height="2"></rect>
+            <rect id="Rectangle-Copy-29" fill-opacity="0.13" fill="#000000" x="0" y="0" width="30" height="2"></rect>
+        </g>
+    </g>
+</svg>

@@ -11,23 +11,30 @@ document.addEventListener("DOMContentLoaded", function() {
 // Global Variables
 // **********************************************
 
-board = document.getElementById("gameboard");
-playButton = document.getElementById("play");
+let board = document.getElementById("gameboard");
+let playButton = document.getElementById("play");
+let playMask = document.getElementById("playMask");
+let pointsDisplay = document.getElementById("points");
+let linesDisplay = document.getElementById("lines");
+let levelDisplay = document.getElementById("level");
+
 
 let isPlaying = false;
 let activePiece = null;
 let boardArray;	// 2D array representing the entire gameboard - each squre contains a Brick or null
 let level;
+let points;
 let speed;
 let linesCleared;
 let autoMove;	// Reference to the setInterval function that automatically moves the piece down
 
+let colorChange;
 
 
 // **********************************************
 // Color Changing Background
 // **********************************************
-hue = 200
+let hue = 200;
 
 function changeColor() {
 	if (hue <= 359) {
@@ -39,10 +46,6 @@ function changeColor() {
 
 	document.body.style.background = "hsl(" + hue + ", 50%, 70%)";
 }
-
-setInterval(changeColor, 100);
-
-
 
 
 // **********************************************
@@ -87,6 +90,17 @@ class Piece {
 		return true;
 	}
 
+	canMoveUp() {
+		for (let brick of this.bricks) {
+			if (brick.y < 20) {
+				if ((brick.y <= 0 || (boardArray[brick.y - 1][brick.x]))) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	canMoveLeft() {
 		for (let brick of this.bricks) {
 			if ((brick.x <= 0 || (boardArray[brick.y][brick.x - 1]))) {
@@ -112,6 +126,13 @@ class Piece {
 		}
 	}
 
+	moveUp() {
+		this.y -= 1;
+		for (let brick of this.bricks) {
+			brick.y -= 1;
+		}
+	}
+
 	moveLeft() {
 		this.x -= 1;
 		for (let brick of this.bricks) {
@@ -129,22 +150,20 @@ class Piece {
 
 
 	rotate() {
-		// console.log(this.bricks);
-		// this.bricks[0].x += this.rotateDelta[this.rotation][0].x;
-		// this.bricks[0].y += this.rotateDelta[this.rotation][0].y;
-
-		// console.log(this.rotateDelta[this.rotation][0].x);
-		// console.log(this.rotateDelta[this.rotation][0].y);
-		// console.log(this.bricks[0].x, this.bricks[0].y);
 
 		// Store copies of original bricks in case we need to reverse
 		let originalBricks = [
-			new Brick("p1", this.bricks[0].x, this.bricks[0].y),
-			new Brick("p1", this.bricks[1].x, this.bricks[1].y),
-			new Brick("p1", this.bricks[2].x, this.bricks[2].y),
-			new Brick("p1", this.bricks[3].x, this.bricks[3].y)
+			new Brick(this.type, this.bricks[0].x, this.bricks[0].y),
+			new Brick(this.type, this.bricks[1].x, this.bricks[1].y),
+			new Brick(this.type, this.bricks[2].x, this.bricks[2].y),
+			new Brick(this.type, this.bricks[3].x, this.bricks[3].y)
 		];
 
+		let originalX = this.x;
+		let originalY = this.y;
+		let originalRotation = this.rotation;
+
+		// Move all the bricks based on which type of piece this is
 		this.bricks[0].x += this.rotateDelta[this.rotation][0].x;
 		this.bricks[0].y += this.rotateDelta[this.rotation][0].y;
 		this.bricks[1].x += this.rotateDelta[this.rotation][1].x;
@@ -154,64 +173,92 @@ class Piece {
 		this.bricks[3].x += this.rotateDelta[this.rotation][3].x;
 		this.bricks[3].y += this.rotateDelta[this.rotation][3].y;
 
-		// console.log(this.bricks);
+		// this.stayInBounds();	// Keeps piece from going past the left and right walls
+		
 		this.rotation = (this.rotation + 90) % 360;
-	}
-
-
-
-
-	// **********************************************
-	// Collision Detection and Rotation Reversal
-	// **********************************************
-
-	copyBricks() {
-		let bricks = [
-			new Brick("p1", this.bricks[0].x, this.bricks[0].y),
-			new Brick("p1", this.bricks[1].x, this.bricks[1].y),
-			new Brick("p1", this.bricks[2].x, this.bricks[2].y),
-			new Brick("p1", this.bricks[3].x, this.bricks[3].y)
-		];
-		return bricks;		
-	}
-
-	hasCollided() {
-		let collided = false;
-		for (let brick of this.bricks) {
-			if (boardArray[brick.y][brick.x]) {
-				collided = true;
+		this.stayInBounds();
+		
+		// Check for collisions with other pieces - if there is one, move the piece back to its original position
+		if (this.hasCollision()) {
+			if (this.canMoveLeft()) {
+				this.moveLeft();
+			}
+			else if (this.canMoveRight()) {
+				this.moveRight();
+			}
+			if (this.hasCollision()) {
+				for (let index in this.bricks) {
+					this.bricks[index] = originalBricks[index];
+				}
+				this.x = originalX;
+				this.y = originalY;
+				this.rotation = originalRotation;
 			}
 		}
-		return collided;
+	}
+
+
+
+
+	// **********************************************
+	// Collision
+	// **********************************************
+
+	hasFloorCollision() {
+		for (let brick of this.bricks) {
+			if (brick.y > 19) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	hasCollision() {
+		let collision = false;
+		for (let brick of this.bricks) {
+			if (boardArray[brick.y][brick.x]) {
+				collision = true;
+			}
+		}
+		return collision;
 	}
 
 	// Keep the piece from overlapping the sides when rotating
 	stayInBounds() {
 		let leftDelta = 0;
 		let rightDelta = 0;
+		let bottomDelta = 0;
 		for (let brick of this.bricks) {
 			if (brick.x < 0) {
 				leftDelta = Math.max((0 - brick.x), leftDelta);
 			}
 			else if (brick.x > 9) {
-				rightDelta = Math.min((9 - brick.x), rightDelta)
+				rightDelta = Math.min((9 - brick.x), rightDelta);
+			}
+			if (brick.y > 19) {
+				bottomDelta = Math.min((19 - brick.y), bottomDelta);
 			}
 		}
 
 		this.x = this.x + leftDelta + rightDelta;
+		this.y = this.y + bottomDelta;
 
 		for (let brick of this.bricks) {
 			brick.x = brick.x + leftDelta + rightDelta;
+			brick.y = brick.y + bottomDelta;
 		}
 	}
+
+	// **********************************************
+	// Draw
+	// **********************************************
 
 	draw() {
 		let newPiece = document.createElement("div");
 		newPiece.className = "piece " + this.type;
 		newPiece.style.left = this.x * 31 + 1 + "px";
 		newPiece.style.top = this.y * 31 + 1 + "px";
-		newPiece.style.backgroundImage = "url(" + this.imageURL + ")";
-		newPiece.style.transform = "rotate(" + this.rotation + "deg)";
+		newPiece.style.backgroundImage = "url(images/" + this.type + "_" + this.rotation + ".svg)";
 		board.append(newPiece);
 	}
 }
@@ -228,7 +275,6 @@ class P1 extends Piece {
 	constructor(x=0, y=0) {
 		super("p1", x, y);
 		this.bricks = [new Brick("p1", x+1, y), new Brick("p1", x+1, y+1), new Brick("p1", x+1, y+2), new Brick("p1", x+1, y+3)];
-		this.imageURL = "images/p1.svg";
 		this.rotateDelta = {
 			0: {
 				0: {x:  2, y:  1},
@@ -256,62 +302,6 @@ class P1 extends Piece {
 			}
 		}
 	}
-
-	rotate() {
-		// let originalBricks = this.copyBricks();
-
-		// if (this.rotation == 0) {
-		// 	this.bricks[0].x += 2;
-		// 	this.bricks[0].y += 1;
-		// 	this.bricks[1].x += 1;
-		// 	this.bricks[2].y -= 1;
-		// 	this.bricks[3].x -= 1;
-		// 	this.bricks[3].y -= 2;
-		// }
-
-		// else if (this.rotation == 90) {
-		// 	this.bricks[0].x -= 1;
-		// 	this.bricks[0].y += 2;
-		// 	this.bricks[1].y += 1;
-		// 	this.bricks[2].x += 1;
-		// 	this.bricks[3].x += 2;
-		// 	this.bricks[3].y -= 1;
-		// }
-
-		// else if (this.rotation == 180) {
-		// 	this.bricks[0].x -= 2;
-		// 	this.bricks[0].y -= 1;
-		// 	this.bricks[1].x -= 1;
-		// 	this.bricks[2].y += 1;
-		// 	this.bricks[3].x += 1;
-		// 	this.bricks[3].y += 2;
-		// }
-
-		// else if (this.rotation == 270) {
-		// 	this.bricks[0].x += 1;
-		// 	this.bricks[0].y -= 2;
-		// 	this.bricks[1].y -= 1;
-		// 	this.bricks[2].x -= 1;
-		// 	this.bricks[3].x -= 2;
-		// 	this.bricks[3].y += 1;
-		// }
-
-
-		// if (this.hasCollided()) {
-		// 	console.log('collision');
-		// 	if (this.canMoveRight()) {
-		// 		this.moveRight();
-		// 	}
-		// 	else if (this.canMoveLeft()) {
-		// 		this.moveLeft();
-		// 	}
-		// }
-
-
-
-		super.rotate();
-		// super.stayInBounds();
-	}
 }
 
 
@@ -324,7 +314,6 @@ class P2 extends Piece {
 	constructor(x=0, y=0) {
 		super("p2", x, y);
 		this.bricks = [new Brick("p2", x+1, y), new Brick("p2", x, y+1), new Brick("p2", x+1, y+1), new Brick("p2", x+2, y+1)];
-		this.imageURL = "images/p2.svg";
 		this.rotateDelta = {
 			0: {
 				0: {x:  1, y:  1},
@@ -352,52 +341,8 @@ class P2 extends Piece {
 			}
 		}
 	}
-
-	rotate() {
-
-		// let originalBricks = this.copyBricks();
-
-		// if (this.rotation == 0) {
-		// 	this.bricks[0].x += 1;
-		// 	this.bricks[0].y += 1;
-		// 	this.bricks[1].x += 1;
-		// 	this.bricks[1].y -= 1;
-		// 	this.bricks[3].x -= 1;
-		// 	this.bricks[3].y += 1;
-		// }
-
-		// else if (this.rotation == 90) {
-		// 	this.bricks[0].x -= 1;
-		// 	this.bricks[0].y += 1;
-		// 	this.bricks[1].x += 1;
-		// 	this.bricks[1].y += 1;
-		// 	this.bricks[3].x -= 1;
-		// 	this.bricks[3].y -= 1;
-
-		// }
-
-		// else if (this.rotation == 180) {
-		// 	this.bricks[0].x -= 1;
-		// 	this.bricks[0].y -= 1;
-		// 	this.bricks[1].x -= 1;
-		// 	this.bricks[1].y += 1;
-		// 	this.bricks[3].x += 1;
-		// 	this.bricks[3].y -= 1;
-
-		// }
-
-		// else if (this.rotation == 270) {
-		// 	this.bricks[0].x += 1;
-		// 	this.bricks[0].y -= 1;
-		// 	this.bricks[1].x -= 1;
-		// 	this.bricks[1].y -= 1;
-		// 	this.bricks[3].x += 1;
-		// 	this.bricks[3].y += 1;
-		// }
-		super.rotate();
-		// super.stayInBounds();
-	}
 }
+
 
 // **********************************************
 // P3: Forward snek
@@ -408,7 +353,6 @@ class P3 extends Piece {
 	constructor(x=0, y=0) {
 		super("p3", x, y);
 		this.bricks = [new Brick("p3", x+1, y), new Brick("p3", x+2, y), new Brick("p3", x, y+1), new Brick("p3", x+1, y+1)];
-		this.imageURL = "images/p3.svg";
 		this.rotateDelta = {
 			0: {
 				0: {x:  1, y:  1},
@@ -418,7 +362,7 @@ class P3 extends Piece {
 			},
 			90: {
 				0: {x: -1, y:  1},
-				1: {x: -2, y:  1},
+				1: {x: -2, y:  0},
 				2: {x:  1, y:  1},
 				3: {x:  0, y:  0}
 			},
@@ -436,45 +380,8 @@ class P3 extends Piece {
 			}
 		}
 	}
-
-	rotate() {
-		// let originalBricks = this.copyBricks();
-
-		// if (this.rotation == 0) {
-		// 	this.bricks[0].x += 1;
-		// 	this.bricks[0].y += 1;
-		// 	this.bricks[1].y += 2;
-		// 	this.bricks[2].x += 1;
-		// 	this.bricks[2].y -= 1;
-		// }
-
-		// else if (this.rotation == 90) {
-		// 	this.bricks[0].x -= 1;
-		// 	this.bricks[0].y += 1;
-		// 	this.bricks[1].x -= 2;
-		// 	this.bricks[2].x += 1;
-		// 	this.bricks[2].y += 1;
-		// }
-
-		// else if (this.rotation == 180) {
-		// 	this.bricks[0].x -= 1;
-		// 	this.bricks[0].y -= 1;
-		// 	this.bricks[1].y -= 2;
-		// 	this.bricks[2].x -= 1;
-		// 	this.bricks[2].y += 1;
-		// }
-
-		// else if (this.rotation == 270) {
-		// 	this.bricks[0].x += 1;
-		// 	this.bricks[0].y -= 1;
-		// 	this.bricks[1].x += 2;
-		// 	this.bricks[2].x -= 1;
-		// 	this.bricks[2].y -= 1;
-		// }
-		super.rotate();
-		// super.stayInBounds();
-	}
 }
+
 
 // **********************************************
 // P4: Backward snek
@@ -485,7 +392,6 @@ class P4 extends Piece {
 	constructor(x=0, y=0) {
 		super("p4", x, y);
 		this.bricks = [new Brick("p4", x, y), new Brick("p4", x+1, y), new Brick("p4", x+1, y+1), new Brick("p4", x+2, y+1)];
-		this.imageURL = "images/p4.svg";
 		this.rotateDelta = {
 			0: {
 				0: {x:  2, y:  0},
@@ -513,49 +419,11 @@ class P4 extends Piece {
 			}
 		}
 	}
-
-	rotate() {
-		// let originalBricks = this.copyBricks();
-
-		// if (this.rotation == 0) {
-		// 	this.bricks[0].x += 2;
-		// 	this.bricks[1].x += 1;
-		// 	this.bricks[1].y += 1;
-		// 	this.bricks[3].x -= 1;
-		// 	this.bricks[3].y += 1;
-		// }
-
-		// else if (this.rotation == 90) {
-		// 	this.bricks[0].y += 2;
-		// 	this.bricks[1].x -= 1;
-		// 	this.bricks[1].y += 1;
-		// 	this.bricks[3].x -= 1;
-		// 	this.bricks[3].y -= 1;
-		// }
-
-		// else if (this.rotation == 180) {
-		// 	this.bricks[0].x -= 2;
-		// 	this.bricks[1].x -= 1;
-		// 	this.bricks[1].y -= 1;
-		// 	this.bricks[3].x += 1;
-		// 	this.bricks[3].y -= 1;
-
-		// }
-
-		// else if (this.rotation == 270) {
-		// 	this.bricks[0].y -= 2;
-		// 	this.bricks[1].x += 1;
-		// 	this.bricks[1].y -= 1;
-		// 	this.bricks[3].x += 1;
-		// 	this.bricks[3].y += 1;
-		// }
-		super.rotate();
-		// super.stayInBounds();
-	}
 }
 
+
 // **********************************************
-// P4: L
+// P5: L
 //		   *
 //	       * 
 //		   * * 
@@ -564,7 +432,6 @@ class P5 extends Piece {
 	constructor(x=0, y=0) {
 		super("p5", x, y);
 		this.bricks = [new Brick("p5", x+1, y), new Brick("p5", x+1, y+1), new Brick("p5", x+1, y+2), new Brick("p5", x+2, y+2)];
-		this.imageURL = "images/p5.svg";
 		this.rotateDelta = {
 			0: {
 				0: {x:  1, y:  1},
@@ -573,7 +440,7 @@ class P5 extends Piece {
 				3: {x: -2, y:  0}
 			},
 			90: {
-				0: {x: -1, y: 1},
+				0: {x: -1, y:  1},
 				1: {x:  0, y:  0},
 				2: {x:  1, y: -1},
 				3: {x:  0, y: -2}
@@ -592,45 +459,8 @@ class P5 extends Piece {
 			}
 		}
 	}
-
-	rotate() {
-		// let originalBricks = this.copyBricks();
-
-		// if (this.rotation == 0) {
-		// 	this.bricks[0].x += 1;
-		// 	this.bricks[0].y += 1;
-		// 	this.bricks[2].x -= 1;
-		// 	this.bricks[2].y -= 1;
-		// 	this.bricks[3].x -= 2;
-		// }
-
-		// else if (this.rotation == 90) {
-		// 	this.bricks[0].x -= 1;
-		// 	this.bricks[0].y += 1;
-		// 	this.bricks[2].x += 1;
-		// 	this.bricks[2].y -= 1;
-		// 	this.bricks[3].y -= 2;
-		// }
-
-		// else if (this.rotation == 180) {
-		// 	this.bricks[0].x -= 1;
-		// 	this.bricks[0].y -= 1;
-		// 	this.bricks[2].x += 1;
-		// 	this.bricks[2].y += 1;
-		// 	this.bricks[3].x += 2;
-		// }
-
-		// else if (this.rotation == 270) {
-		// 	this.bricks[0].x += 1;
-		// 	this.bricks[0].y -= 1;
-		// 	this.bricks[2].x -= 1;
-		// 	this.bricks[2].y += 1;
-		// 	this.bricks[3].y += 2;
-		// }
-		super.rotate();
-		// super.stayInBounds();
-	}
 }
+
 
 // **********************************************
 // P6: Not-an-L
@@ -642,7 +472,6 @@ class P6 extends Piece {
 	constructor(x=0, y=0) {
 		super("p6", x, y);
 		this.bricks = [new Brick("p6", x+1, y), new Brick("p6", x+1, y+1), new Brick("p6", x+1, y+2), new Brick("p6", x, y+2)];
-		this.imageURL = "images/p6.svg";
 		this.rotateDelta = {
 			0: {
 				0: {x:  1, y:  1},
@@ -670,45 +499,8 @@ class P6 extends Piece {
 			}
 		}
 	}
-
-	rotate() {
-		// let originalBricks = this.copyBricks();
-
-		// if (this.rotation == 0) {
-		// 	this.bricks[0].x += 1;
-		// 	this.bricks[0].y += 1;
-		// 	this.bricks[2].x -= 1;
-		// 	this.bricks[2].y -= 1;
-		// 	this.bricks[3].y -= 2;
-		// }
-
-		// else if (this.rotation == 90) {
-		// 	this.bricks[0].x -= 1;
-		// 	this.bricks[0].y += 1;
-		// 	this.bricks[2].x += 1;
-		// 	this.bricks[2].y -= 1;
-		// 	this.bricks[3].x += 2;
-		// }
-
-		// else if (this.rotation == 180) {
-		// 	this.bricks[0].x -= 1;
-		// 	this.bricks[0].y -= 1;
-		// 	this.bricks[2].x += 1;
-		// 	this.bricks[2].y += 1;
-		// 	this.bricks[3].y += 2;
-		// }
-
-		// else if (this.rotation == 270) {
-		// 	this.bricks[0].x += 1;
-		// 	this.bricks[0].y -= 1;
-		// 	this.bricks[2].x -= 1;
-		// 	this.bricks[2].y += 1;
-		// 	this.bricks[3].x -= 2;
-		// }
-		super.rotate();
-		// super.stayInBounds();
-	}
 }
+
 
 // **********************************************
 // P7: Square
@@ -719,7 +511,32 @@ class P7 extends Piece {
 	constructor(x=0, y=0) {
 		super("p7", x, y);
 		this.bricks = [new Brick("p7", x, y), new Brick("p7", x+1, y), new Brick("p7", x, y+1), new Brick("p7", x+1, y+1)];
-		this.imageURL = "images/p7.svg";
+		this.rotateDelta = {
+			0: {
+				0: {x: 0, y: 0},
+				1: {x: 0, y: 0},
+				2: {x: 0, y: 0},
+				3: {x: 0, y: 0}
+			},
+			90: {
+				0: {x: 0, y: 0},
+				1: {x: 0, y: 0},
+				2: {x: 0, y: 0},
+				3: {x: 0, y: 0}
+			},
+			180: {
+				0: {x: 0, y: 0},
+				1: {x: 0, y: 0},
+				2: {x: 0, y: 0},
+				3: {x: 0, y: 0}
+			},
+			270: {
+				0: {x: 0, y: 0},
+				1: {x: 0, y: 0},
+				2: {x: 0, y: 0},
+				3: {x: 0, y: 0}
+			}
+		}
 	}
 
 	rotate() {
@@ -788,6 +605,11 @@ window.addEventListener("keydown", function(e) {
 		redraw();
 		event.preventDefault();
 	}
+
+	if (e.key == " ") {
+		togglePlay();
+		event.preventDefault();
+	}
 });
 
 
@@ -795,7 +617,8 @@ window.addEventListener("keydown", function(e) {
 // Generate Pieces and Redraw
 // **********************************************
 
-function getNewPiece() {
+function getNewPiece()  {
+	// activePiece = new P1(4, 0);
 	let pieceType = Math.floor(Math.random() * 7) + 1;
 	if (pieceType == 1) {
 		activePiece = new P1(4, 0);
@@ -832,6 +655,12 @@ function redraw() {
 			}
 		}
 	}
+	
+	pointsDisplay.textContent = points;
+	linesDisplay.textContent = linesCleared;
+	levelDisplay.textContent = level;
+
+
 }
 
 
@@ -840,6 +669,7 @@ function redraw() {
 // **********************************************
 
 
+// This sets the piece down on the floor
 function stopPiece() {
 
 	// Store the y values of the piece as it's settling to the floor
@@ -865,16 +695,39 @@ function stopPiece() {
 	getNewPiece();
 }
 
-
+// Process the lines that correspond to the y-value for the bricks in the active piece
+// to see if they need to be cleared
 function processLines(linesToCheck) {
 	linesToCheck.sort();
+	let linesToClear = [];
+
 	for (line of linesToCheck) {
 		if (lineIsFull(line)) {
-			clearLine(line);
+			linesToClear.push(line);
 		}
 	}
-}
 
+	for (line of linesToClear) {
+		clearLine(line);
+	}
+
+	// Process scoring
+	if (linesToClear.length == 4) {
+		points = points + ((level + 1) * 1200);
+	}
+	else if (linesToClear.length == 3) {
+		points = points + ((level + 1) * 300);
+	}
+	else if (linesToClear.length == 2) {
+		points = points + ((level + 1) * 100);
+	}
+	else if (linesToClear.length == 1) {
+		points = points + ((level + 1) * 40);
+	}
+
+	level = Math.floor(linesCleared / 10);
+
+}
 
 // Checks an individual line to see if it is full and needs to be cleared
 function lineIsFull(line) {
@@ -887,11 +740,11 @@ function lineIsFull(line) {
 	return full;
 }
 
+// Clears a line and moves everything down
 function clearLine(line) {
 	for (y = line; y > 0; y--) {
 		for (x=0; x<10; x++) {
 			boardArray[y][x] = boardArray[y - 1][x];
-			console.log(line, boardArray[y][x]);
 			if (boardArray[y][x]) {
 				boardArray[y][x].y = boardArray[y][x].y + 1;
 			} 
@@ -900,10 +753,6 @@ function clearLine(line) {
 	linesCleared++;
 	boardArray[0] = [null, null, null, null, null, null, null, null, null, null];
 }
-
-
-
-
 
 
 // **********************************************
@@ -933,7 +782,8 @@ function initializeGame() {
 		[null, null, null, null, null, null, null, null, null, null],
 		[null, null, null, null, null, null, null, null, null, null],
 	];
-	level = 1;
+	level = 0;
+	points = 0;
 	speed = 1200;
 	linesCleared = 0;
 }
@@ -944,6 +794,11 @@ function start() {
 		initializeGame();
 		getNewPiece();	
 	}
+
+	playMask.style.display = "none";
+	
+	colorChange = setInterval(changeColor, 100);
+	
 	
 	autoMove = setInterval(function() {
 		moveActivePieceDown();
@@ -955,6 +810,11 @@ function start() {
 
 function pause() {
 	clearInterval(autoMove);
+	clearInterval(colorChange);
+
+	playMask.style.backgroundColor = "hsl(" + hue + ", 50%, 70%)";
+	playMask.style.display = "block";
+
 	playButton.textContent = "PLAY";
 	isPlaying = false;
 }
@@ -969,8 +829,6 @@ function togglePlay() {
 }
 
 playButton.addEventListener('click', togglePlay);
-
-
 
 });
 
