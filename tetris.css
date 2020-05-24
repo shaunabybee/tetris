@@ -122,14 +122,30 @@ button#pause {
 	margin-top: 24px;
 }
 
-#playMask {
+#mask {
+	position: absolute;
+}
+
+#boardMask {
 	z-index: 200;
 	position: absolute;
+	top: 0;
 	opacity: 0.6;
 	width: 331px;
 	height: 641px;
 	background: rgb(0, 84, 126);
 	border-radius: 4px;
+}
+
+p#gameOver {
+	position: relative;
+	top: 230px;
+	left: 60px;
+	display: none;
+	z-index: 300;
+	font-size: 3rem;
+	color: rgb(255, 255, 255);
+	text-shadow: 2px 2px 8px rgba(50, 70, 90, 0.3);
 }
 
 button {

@@ -3,16 +3,20 @@
 <head>
 	<title>Tetris</title>
 	<link rel="stylesheet" type="text/css" href="tetris.css">
-	<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:ital,wght@0,200;1,400&family=Sniglet:wght@400;800&display=swap" rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@400;700&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Nanum+Gothic+Coding:wght@400;700&display=swap" rel="stylesheet">
 	<script type="text/javascript" src="tetris.js"></script>
 </head>
 <body id="body">
 
 <div id="container">
+<!-- 	<section>
+		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer dignissim diam lorem. Etiam id commodo justo, lobortis viverra enim. Etiam ipsum augue, fringilla vel maximus sit amet, placerat at elit. Nullam ut semper nibh. Maecenas eu dictum nunc. Mauris sodales, mi eu dictum feugiat, mauris dui rhoncus ex, non placerat sem est a metus. Integer facilisis eu risus convallis auctor. Praesent posuere vulputate erat. </p>
+	</section> -->
 	<section>
 		<h1>Tetris</h1>
-		<div id=playMask>
+		<div id="mask">
+			<p id="gameOver">GAME OVER!</p>
+			<div id="boardMask"></div>
 		</div>
 		<div id="game">
 			<div id="gameboard">

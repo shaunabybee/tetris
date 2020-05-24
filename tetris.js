@@ -13,13 +13,15 @@ document.addEventListener("DOMContentLoaded", function() {
 
 let board = document.getElementById("gameboard");
 let playButton = document.getElementById("play");
-let playMask = document.getElementById("playMask");
+let playMask = document.getElementById("boardMask");
 let pointsDisplay = document.getElementById("points");
 let linesDisplay = document.getElementById("lines");
 let levelDisplay = document.getElementById("level");
+let gameOverDisplay = document.getElementById("gameOver");
 
 
 let isPlaying = false;
+let isEnded = true;
 let activePiece = null;
 let boardArray;	// 2D array representing the entire gameboard - each squre contains a Brick or null
 let level;
@@ -563,57 +565,6 @@ function moveActivePieceDown() {
 
 
 // **********************************************
-// Bind Arrow Keys --> Motion
-// **********************************************
-
-window.addEventListener("keydown", function(e) {
-	if (e.key == "ArrowDown" && activePiece) {
-
-		if (activePiece.canMoveDown()) {
-			clearInterval(autoMove);
-			moveActivePieceDown();
-			autoMove = setInterval(function() {
-				moveActivePieceDown();
-			}, speed);
-			event.preventDefault();
-		}
-
-		else {
-			stopPiece();
-			event.preventDefault();
-		}
-	}
-
-	if (e.key == "ArrowRight" && activePiece) {
-		if (activePiece.canMoveRight()) {
-			activePiece.moveRight();
-			redraw();
-		}
-		event.preventDefault();
-	}
-
-	if (e.key == "ArrowLeft" && activePiece) {
-		if (activePiece.canMoveLeft()) {
-			activePiece.moveLeft();
-			redraw();
-		}
-		event.preventDefault();
-	}
-
-	if (e.key == "ArrowUp" && activePiece) {
-		activePiece.rotate();
-		redraw();
-		event.preventDefault();
-	}
-
-	if (e.key == " ") {
-		togglePlay();
-		event.preventDefault();
-	}
-});
-
-
-// **********************************************
 // Generate Pieces and Redraw
 // **********************************************
 
@@ -641,7 +592,12 @@ function getNewPiece()  {
 	else if (pieceType == 7) {
 		activePiece = new P7(4, 0);
 	}
+
 	redraw();
+
+	if (activePiece.hasCollision()) {
+		endGame();
+	}
 }
 
 function redraw() {
@@ -671,6 +627,10 @@ function redraw() {
 
 // This sets the piece down on the floor
 function stopPiece() {
+
+	for (let brick of activePiece.bricks) {
+
+	}
 
 	// Store the y values of the piece as it's settling to the floor
 	// so we can check and see if the lines need to be cleared
@@ -727,6 +687,16 @@ function processLines(linesToCheck) {
 
 	level = Math.floor(linesCleared / 10);
 
+	if (level < 4) {
+		speed = 1200 - (level * 200);	
+	}
+	else if (level < 10) {
+		speed = 500 - ((level - 4) * 100);
+	}
+	else {
+		speed = 50;
+	}
+
 }
 
 // Checks an individual line to see if it is full and needs to be cleared
@@ -753,6 +723,56 @@ function clearLine(line) {
 	linesCleared++;
 	boardArray[0] = [null, null, null, null, null, null, null, null, null, null];
 }
+
+
+// **********************************************
+// Bind Arrow Keys --> Motion
+// **********************************************
+
+window.addEventListener("keydown", function(e) {
+	if (e.key == "ArrowDown" && activePiece && !(isEnded)) {
+		if (activePiece.canMoveDown()) {
+			clearInterval(autoMove);
+			moveActivePieceDown();
+			autoMove = setInterval(function() {
+				moveActivePieceDown();
+			}, speed);
+			event.preventDefault();
+		}
+
+		else {
+			stopPiece();
+			event.preventDefault();
+		}
+	}
+
+	if (e.key == "ArrowRight" && activePiece && !(isEnded)) {
+		if (activePiece.canMoveRight()) {
+			activePiece.moveRight();
+			redraw();
+		}
+		event.preventDefault();
+	}
+
+	if (e.key == "ArrowLeft" && activePiece && !(isEnded)) {
+		if (activePiece.canMoveLeft()) {
+			activePiece.moveLeft();
+			redraw();
+		}
+		event.preventDefault();
+	}
+
+	if (e.key == "ArrowUp" && activePiece && !(isEnded)) {
+		activePiece.rotate();
+		redraw();
+		event.preventDefault();
+	}
+
+	if (e.key == " ") {
+		togglePlay();
+		event.preventDefault();
+	}
+});
 
 
 // **********************************************
@@ -786,17 +806,18 @@ function initializeGame() {
 	points = 0;
 	speed = 1200;
 	linesCleared = 0;
+	gameOverDisplay.style.display = "none";
 }
 
 
 function start() {
-	if (!activePiece) {
+	if (isEnded) {
+		isEnded = false;
 		initializeGame();
 		getNewPiece();	
 	}
 
 	playMask.style.display = "none";
-	
 	colorChange = setInterval(changeColor, 100);
 	
 	
@@ -817,6 +838,19 @@ function pause() {
 
 	playButton.textContent = "PLAY";
 	isPlaying = false;
+}
+
+function endGame() {
+	clearInterval(autoMove);
+	clearInterval(colorChange);
+
+	playMask.style.backgroundColor = "hsl(" + hue + ", 50%, 70%)";
+	playMask.style.display = "block";
+	gameOverDisplay.style.display = "block";
+
+	playButton.textContent = "PLAY AGAIN";
+	isPlaying = false;
+	isEnded = true;
 }
 
 function togglePlay() {
